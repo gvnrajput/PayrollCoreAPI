@@ -3,13 +3,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using WebAPI.Models;
+using BAL.Interfaces;
+using BAL.Repositories;
+using DAL.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<PayrollDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Payrollcon")));
+
+// Register repositories and services from BAL
+builder.Services.AddScoped<ISettingsCompanyGroupRepository, SettingsCompanyGroupRepository>();
+// Register other repositories and services as needed
 
 builder.Services.AddControllers();
 
@@ -42,7 +48,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // JWT Authentication
-var key = Encoding.ASCII.GetBytes("A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6A7B8C9D0E1F2G3H4I5J6K7L8M9N0O1P2Q3R4S5T678569777777777777777777777777777777777777777777777777777777");
+var key = Encoding.ASCII.GetBytes("A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6A7B8C9D0E1F2G3H4I5J6K7L8M9N0O1P2Q3R4S5T6");
 
 builder.Services.AddAuthentication(options =>
 {

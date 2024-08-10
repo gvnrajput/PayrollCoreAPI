@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI", "PayrollCoreAPI\WebAPI.csproj", "{B437DF73-9632-463E-86B2-0FD95F06937B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPI", "PayrollCoreAPI\WebAPI.csproj", "{B437DF73-9632-463E-86B2-0FD95F06937B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{E67CA62E-2D7D-4A38-A679-92B7949FAF3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BAL", "BAL\BAL.csproj", "{D764A958-0205-43DB-A293-759616CDE750}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{B437DF73-9632-463E-86B2-0FD95F06937B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B437DF73-9632-463E-86B2-0FD95F06937B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B437DF73-9632-463E-86B2-0FD95F06937B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E67CA62E-2D7D-4A38-A679-92B7949FAF3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E67CA62E-2D7D-4A38-A679-92B7949FAF3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E67CA62E-2D7D-4A38-A679-92B7949FAF3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E67CA62E-2D7D-4A38-A679-92B7949FAF3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D764A958-0205-43DB-A293-759616CDE750}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D764A958-0205-43DB-A293-759616CDE750}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D764A958-0205-43DB-A293-759616CDE750}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D764A958-0205-43DB-A293-759616CDE750}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

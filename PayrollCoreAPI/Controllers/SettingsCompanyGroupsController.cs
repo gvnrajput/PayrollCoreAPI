@@ -1,30 +1,29 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using DAL.Models; // Adjust namespace for your DAL models
 using WebAPI.Common;
-using WebAPI.Models;
+using BAL.Interfaces;
 
 namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-  // [Authorize]
+    //[Authorize] // Uncomment if you want to require authorization
     public class SettingsCompanyGroupsController : ControllerBase
     {
-        private readonly PayrollDbContext _context;
+        private readonly ISettingsCompanyGroupRepository _repository;
 
-        public SettingsCompanyGroupsController(PayrollDbContext context)
+        public SettingsCompanyGroupsController(ISettingsCompanyGroupRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
-        // GET: api/SettingsCompanyGroups
         [HttpGet]
         public async Task<ActionResult<SuccessResponse<IEnumerable<SettingsCompanyGroup>>>> GetSettingsCompanyGroups()
         {
             try
             {
-                var companyGroups = await _context.SettingsCompanyGroups.ToListAsync();
+                var companyGroups = await _repository.GetAllAsync();
                 return Ok(new SuccessResponse<IEnumerable<SettingsCompanyGroup>>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataRetrievedSuccessfully,
@@ -40,13 +39,12 @@ namespace WebAPI.Controllers
             }
         }
 
-        // GET: api/SettingsCompanyGroups/5
         [HttpGet("{id}")]
         public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> GetSettingsCompanyGroup(int id)
         {
             try
             {
-                var settingsCompanyGroup = await _context.SettingsCompanyGroups.FindAsync(id);
+                var settingsCompanyGroup = await _repository.GetByIdAsync(id);
 
                 if (settingsCompanyGroup == null)
                 {
@@ -70,7 +68,6 @@ namespace WebAPI.Controllers
             }
         }
 
-        // PUT: api/SettingsCompanyGroups/5
         [HttpPut("{id}")]
         public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> PutSettingsCompanyGroup(int id, SettingsCompanyGroup settingsCompanyGroup)
         {
@@ -81,33 +78,15 @@ namespace WebAPI.Controllers
                     ResponseMessages.IdMismatch));
             }
 
-            _context.Entry(settingsCompanyGroup).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _repository.UpdateAsync(settingsCompanyGroup);
 
-                // Retrieve the updated resource to return in the response
-                var updatedCompanyGroup = await _context.SettingsCompanyGroups.FindAsync(id);
-
-                // Return success response with a message
+                var updatedCompanyGroup = await _repository.GetByIdAsync(id);
                 return Ok(new SuccessResponse<SettingsCompanyGroup>(
                     StatusCodes.Status200OK,
-                    ResponseMessages.DataUpdatedSuccessfully, // Use the centralized success message
+                    ResponseMessages.DataUpdatedSuccessfully,
                     updatedCompanyGroup));
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SettingsCompanyGroupExists(id))
-                {
-                    return NotFound(new ErrorResponse(
-                        StatusCodes.Status404NotFound,
-                        ResponseMessages.NotFound));
-                }
-                else
-                {
-                    throw;
-                }
             }
             catch (Exception ex)
             {
@@ -119,14 +98,12 @@ namespace WebAPI.Controllers
             }
         }
 
-        // POST: api/SettingsCompanyGroups
         [HttpPost]
         public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> PostSettingsCompanyGroup(SettingsCompanyGroup settingsCompanyGroup)
         {
             try
             {
-                _context.SettingsCompanyGroups.Add(settingsCompanyGroup);
-                await _context.SaveChangesAsync();
+                await _repository.AddAsync(settingsCompanyGroup);
 
                 return CreatedAtAction("GetSettingsCompanyGroup", new { id = settingsCompanyGroup.CompanyGroupId },
                     new SuccessResponse<SettingsCompanyGroup>(
@@ -144,13 +121,12 @@ namespace WebAPI.Controllers
             }
         }
 
-        // DELETE: api/SettingsCompanyGroups/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<SuccessResponse<object>>> DeleteSettingsCompanyGroup(int id)
+        public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> DeleteSettingsCompanyGroup(int id)
         {
             try
             {
-                var settingsCompanyGroup = await _context.SettingsCompanyGroups.FindAsync(id);
+                var settingsCompanyGroup = await _repository.GetByIdAsync(id);
                 if (settingsCompanyGroup == null)
                 {
                     return NotFound(new ErrorResponse(
@@ -158,13 +134,12 @@ namespace WebAPI.Controllers
                         ResponseMessages.NotFound));
                 }
 
-                _context.SettingsCompanyGroups.Remove(settingsCompanyGroup);
-                await _context.SaveChangesAsync();
+                await _repository.DeleteAsync(id);
 
-                // Return success response with a message
-                return Ok(new SuccessResponse<object>(
-                    StatusCodes.Status200OK, // Status code 200 OK because a response message is sent
-                    ResponseMessages.DataDeletedSuccessfully));
+                return Ok(new SuccessResponse<SettingsCompanyGroup>(
+                    StatusCodes.Status200OK,
+                    ResponseMessages.DataDeletedSuccessfully,
+                    settingsCompanyGroup));
             }
             catch (Exception ex)
             {
@@ -174,11 +149,6 @@ namespace WebAPI.Controllers
                         ResponseMessages.InternalServerError,
                         ResponseMessages.GetErrorDetails(ex)));
             }
-        }
-
-        private bool SettingsCompanyGroupExists(int id)
-        {
-            return _context.SettingsCompanyGroups.Any(e => e.CompanyGroupId == id);
         }
     }
 }
