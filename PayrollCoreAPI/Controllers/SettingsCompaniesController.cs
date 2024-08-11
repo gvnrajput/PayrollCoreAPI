@@ -69,13 +69,12 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<SuccessResponse<SettingsCompany>>> PostSettingsCompany(SettingsCompany settingsCompany)
         {
             try
-            {
-                // Check for duplicate
+            {                
                 if (await _repository.ExistsAsync(settingsCompany.CompanyName))
                 {
                     return Conflict(new ErrorResponse(
                         StatusCodes.Status409Conflict,
-                        ResponseMessages.AlreadyExists)); // You will need to add this message to ResponseMessages class
+                        ResponseMessages.AlreadyExists)); 
                 }
 
                 await _repository.AddAsync(settingsCompany);
