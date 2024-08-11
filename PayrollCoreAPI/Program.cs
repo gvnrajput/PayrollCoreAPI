@@ -1,10 +1,8 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using BAL.Interfaces;
-using BAL.Repositories;
 using DAL.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,9 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<PayrollDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Payrollcon")));
 
-// Register repositories and services from BAL
-builder.Services.AddScoped<ISettingsCompanyGroupRepository, SettingsCompanyGroupRepository>();
-// Register other repositories and services as needed
+// Use extension method to configure scoped, transient, and singleton services
+builder.Services.RegisterServices();
 
 builder.Services.AddControllers();
 
@@ -78,10 +75,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

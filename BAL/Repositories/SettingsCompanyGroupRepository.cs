@@ -49,5 +49,9 @@ namespace BAL.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<bool> ExistsAsync(string companyGroupName)
+        {
+            return await _context.SettingsCompanyGroups.AnyAsync(c => c.CompanyGroupName== companyGroupName && c.CompanyGroupActive == true);
+        }
     }
 }

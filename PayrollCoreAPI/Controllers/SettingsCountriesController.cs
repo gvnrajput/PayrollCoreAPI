@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using DAL.Models; // Adjust namespace for your DAL models
+﻿using Microsoft.AspNetCore.Mvc;
+using DAL.Models;
 using WebAPI.Common;
 using BAL.Interfaces;
 
@@ -9,25 +8,25 @@ namespace WebAPI.Controllers
     [Route("api/[controller]")]
     [ApiController]
     //[Authorize] // Uncomment if you want to require authorization
-    public class SettingsCompanyGroupsController : ControllerBase
+    public class SettingsCountriesController : ControllerBase
     {
-        private readonly ISettingsCompanyGroupRepository _repository;
+        private readonly ISettingsCountryRepository _repository;
 
-        public SettingsCompanyGroupsController(ISettingsCompanyGroupRepository repository)
+        public SettingsCountriesController(ISettingsCountryRepository repository)
         {
             _repository = repository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<SuccessResponse<IEnumerable<SettingsCompanyGroup>>>> GetSettingsCompanyGroups()
+        public async Task<ActionResult<SuccessResponse<IEnumerable<SettingsCountry>>>> GetSettingsCountries()
         {
             try
             {
-                var companyGroups = await _repository.GetAllAsync();
-                return Ok(new SuccessResponse<IEnumerable<SettingsCompanyGroup>>(
+                var countries = await _repository.GetAllAsync();
+                return Ok(new SuccessResponse<IEnumerable<SettingsCountry>>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataRetrievedSuccessfully,
-                    companyGroups));
+                    countries));
             }
             catch (Exception ex)
             {
@@ -40,23 +39,23 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> GetSettingsCompanyGroup(int id)
+        public async Task<ActionResult<SuccessResponse<SettingsCountry>>> GetSettingsCountry(int id)
         {
             try
             {
-                var settingsCompanyGroup = await _repository.GetByIdAsync(id);
+                var country = await _repository.GetByIdAsync(id);
 
-                if (settingsCompanyGroup == null)
+                if (country == null)
                 {
                     return NotFound(new ErrorResponse(
                         StatusCodes.Status404NotFound,
                         ResponseMessages.NotFound));
                 }
 
-                return Ok(new SuccessResponse<SettingsCompanyGroup>(
+                return Ok(new SuccessResponse<SettingsCountry>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataRetrievedSuccessfully,
-                    settingsCompanyGroup));
+                    country));
             }
             catch (Exception ex)
             {
@@ -69,9 +68,9 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> PutSettingsCompanyGroup(int id, SettingsCompanyGroup settingsCompanyGroup)
+        public async Task<ActionResult<SuccessResponse<SettingsCountry>>> PutSettingsCountry(int id, SettingsCountry country)
         {
-            if (id != settingsCompanyGroup.CompanyGroupId)
+            if (id != country.CountryId)
             {
                 return BadRequest(new ErrorResponse(
                     StatusCodes.Status400BadRequest,
@@ -80,13 +79,13 @@ namespace WebAPI.Controllers
 
             try
             {
-                await _repository.UpdateAsync(settingsCompanyGroup);
+                await _repository.UpdateAsync(country);
 
-                var updatedCompanyGroup = await _repository.GetByIdAsync(id);
-                return Ok(new SuccessResponse<SettingsCompanyGroup>(
+                var updatedCountry = await _repository.GetByIdAsync(id);
+                return Ok(new SuccessResponse<SettingsCountry>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataUpdatedSuccessfully,
-                    updatedCompanyGroup));
+                    updatedCountry));
             }
             catch (Exception ex)
             {
@@ -99,25 +98,24 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> PostSettingsCompanyGroup(SettingsCompanyGroup settingsCompanyGroup)
+        public async Task<ActionResult<SuccessResponse<SettingsCountry>>> PostSettingsCountry(SettingsCountry country)
         {
             try
-            {
-                // Check if a company group with the same name already exists and is active
-                if (await _repository.ExistsAsync(settingsCompanyGroup.CompanyGroupName))
+            {               
+                if (await _repository.ExistsAsync(country.CountryName ?? string.Empty))
                 {
                     return Conflict(new ErrorResponse(
                         StatusCodes.Status409Conflict,
                         ResponseMessages.AlreadyExists));
                 }
 
-                await _repository.AddAsync(settingsCompanyGroup);
+                await _repository.AddAsync(country);
 
-                return CreatedAtAction("GetSettingsCompanyGroup", new { id = settingsCompanyGroup.CompanyGroupId },
-                    new SuccessResponse<SettingsCompanyGroup>(
+                return CreatedAtAction("GetSettingsCountry", new { id = country.CountryId },
+                    new SuccessResponse<SettingsCountry>(
                         StatusCodes.Status201Created,
                         ResponseMessages.CreatedSuccessfully,
-                        settingsCompanyGroup));
+                        country));
             }
             catch (Exception ex)
             {
@@ -130,12 +128,12 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> DeleteSettingsCompanyGroup(int id)
+        public async Task<ActionResult<SuccessResponse<SettingsCountry>>> DeleteSettingsCountry(int id)
         {
             try
             {
-                var settingsCompanyGroup = await _repository.GetByIdAsync(id);
-                if (settingsCompanyGroup == null)
+                var country = await _repository.GetByIdAsync(id);
+                if (country == null)
                 {
                     return NotFound(new ErrorResponse(
                         StatusCodes.Status404NotFound,
@@ -144,10 +142,10 @@ namespace WebAPI.Controllers
 
                 await _repository.DeleteAsync(id);
 
-                return Ok(new SuccessResponse<SettingsCompanyGroup>(
+                return Ok(new SuccessResponse<SettingsCountry>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataDeletedSuccessfully,
-                    settingsCompanyGroup));
+                    country));
             }
             catch (Exception ex)
             {

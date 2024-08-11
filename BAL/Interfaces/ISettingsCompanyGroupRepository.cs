@@ -8,5 +8,6 @@ namespace BAL.Interfaces
         Task AddAsync(SettingsCompanyGroup entity);
         Task UpdateAsync(SettingsCompanyGroup entity);
         Task DeleteAsync(int id);
+        Task<bool> ExistsAsync(string companyName); // Add this method
     }
 }

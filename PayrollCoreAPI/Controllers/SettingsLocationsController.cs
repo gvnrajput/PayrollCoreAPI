@@ -9,25 +9,25 @@ namespace WebAPI.Controllers
     [Route("api/[controller]")]
     [ApiController]
     //[Authorize] // Uncomment if you want to require authorization
-    public class SettingsCompanyGroupsController : ControllerBase
+    public class SettingsLocationsController : ControllerBase
     {
-        private readonly ISettingsCompanyGroupRepository _repository;
+        private readonly ISettingsLocationRepository _repository;
 
-        public SettingsCompanyGroupsController(ISettingsCompanyGroupRepository repository)
+        public SettingsLocationsController(ISettingsLocationRepository repository)
         {
             _repository = repository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<SuccessResponse<IEnumerable<SettingsCompanyGroup>>>> GetSettingsCompanyGroups()
+        public async Task<ActionResult<SuccessResponse<IEnumerable<SettingsLocation>>>> GetSettingsLocations()
         {
             try
             {
-                var companyGroups = await _repository.GetAllAsync();
-                return Ok(new SuccessResponse<IEnumerable<SettingsCompanyGroup>>(
+                var locations = await _repository.GetAllAsync();
+                return Ok(new SuccessResponse<IEnumerable<SettingsLocation>>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataRetrievedSuccessfully,
-                    companyGroups));
+                    locations));
             }
             catch (Exception ex)
             {
@@ -40,23 +40,23 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> GetSettingsCompanyGroup(int id)
+        public async Task<ActionResult<SuccessResponse<SettingsLocation>>> GetSettingsLocation(int id)
         {
             try
             {
-                var settingsCompanyGroup = await _repository.GetByIdAsync(id);
+                var location = await _repository.GetByIdAsync(id);
 
-                if (settingsCompanyGroup == null)
+                if (location == null)
                 {
                     return NotFound(new ErrorResponse(
                         StatusCodes.Status404NotFound,
                         ResponseMessages.NotFound));
                 }
 
-                return Ok(new SuccessResponse<SettingsCompanyGroup>(
+                return Ok(new SuccessResponse<SettingsLocation>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataRetrievedSuccessfully,
-                    settingsCompanyGroup));
+                    location));
             }
             catch (Exception ex)
             {
@@ -69,9 +69,9 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> PutSettingsCompanyGroup(int id, SettingsCompanyGroup settingsCompanyGroup)
+        public async Task<ActionResult<SuccessResponse<SettingsLocation>>> PutSettingsLocation(int id, SettingsLocation location)
         {
-            if (id != settingsCompanyGroup.CompanyGroupId)
+            if (id != location.LocationId)
             {
                 return BadRequest(new ErrorResponse(
                     StatusCodes.Status400BadRequest,
@@ -80,13 +80,13 @@ namespace WebAPI.Controllers
 
             try
             {
-                await _repository.UpdateAsync(settingsCompanyGroup);
+                await _repository.UpdateAsync(location);
 
-                var updatedCompanyGroup = await _repository.GetByIdAsync(id);
-                return Ok(new SuccessResponse<SettingsCompanyGroup>(
+                var updatedLocation = await _repository.GetByIdAsync(id);
+                return Ok(new SuccessResponse<SettingsLocation>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataUpdatedSuccessfully,
-                    updatedCompanyGroup));
+                    updatedLocation));
             }
             catch (Exception ex)
             {
@@ -99,25 +99,25 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> PostSettingsCompanyGroup(SettingsCompanyGroup settingsCompanyGroup)
+        public async Task<ActionResult<SuccessResponse<SettingsLocation>>> PostSettingsLocation(SettingsLocation location)
         {
             try
             {
-                // Check if a company group with the same name already exists and is active
-                if (await _repository.ExistsAsync(settingsCompanyGroup.CompanyGroupName))
+                // Check if a location with the same name already exists and is active
+                if (await _repository.ExistsAsync(location.LocationName ?? string.Empty))
                 {
                     return Conflict(new ErrorResponse(
                         StatusCodes.Status409Conflict,
                         ResponseMessages.AlreadyExists));
                 }
 
-                await _repository.AddAsync(settingsCompanyGroup);
+                await _repository.AddAsync(location);
 
-                return CreatedAtAction("GetSettingsCompanyGroup", new { id = settingsCompanyGroup.CompanyGroupId },
-                    new SuccessResponse<SettingsCompanyGroup>(
+                return CreatedAtAction("GetSettingsLocation", new { id = location.LocationId },
+                    new SuccessResponse<SettingsLocation>(
                         StatusCodes.Status201Created,
                         ResponseMessages.CreatedSuccessfully,
-                        settingsCompanyGroup));
+                        location));
             }
             catch (Exception ex)
             {
@@ -130,12 +130,12 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> DeleteSettingsCompanyGroup(int id)
+        public async Task<ActionResult<SuccessResponse<SettingsLocation>>> DeleteSettingsLocation(int id)
         {
             try
             {
-                var settingsCompanyGroup = await _repository.GetByIdAsync(id);
-                if (settingsCompanyGroup == null)
+                var location = await _repository.GetByIdAsync(id);
+                if (location == null)
                 {
                     return NotFound(new ErrorResponse(
                         StatusCodes.Status404NotFound,
@@ -144,10 +144,10 @@ namespace WebAPI.Controllers
 
                 await _repository.DeleteAsync(id);
 
-                return Ok(new SuccessResponse<SettingsCompanyGroup>(
+                return Ok(new SuccessResponse<SettingsLocation>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataDeletedSuccessfully,
-                    settingsCompanyGroup));
+                    location));
             }
             catch (Exception ex)
             {

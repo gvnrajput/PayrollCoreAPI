@@ -13,6 +13,7 @@
         public const string BadRequest = "Bad request";
         public const string InternalServerError = "An error occurred while processing your request";
         public const string IdMismatch = "ID mismatch";
+        public const string AlreadyExists = "A duplicate record already exists";
 
         // Error Details (Optional)
         public static string GetErrorDetails(Exception ex)
