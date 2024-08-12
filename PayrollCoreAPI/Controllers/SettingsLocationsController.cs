@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using DAL.Models; // Adjust namespace for your DAL models
 using WebAPI.Common;
 using BAL.Interfaces;
+using WebAPI.Models;
 
 namespace WebAPI.Controllers
 {
@@ -69,18 +70,38 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<SuccessResponse<SettingsLocation>>> PutSettingsLocation(int id, SettingsLocation location)
+        public async Task<ActionResult<SuccessResponse<SettingsLocation>>> PutSettingsLocation(int id, SettingsLocationModel locationModel)
         {
-            if (id != location.LocationId)
+            if (id <= 0)
             {
                 return BadRequest(new ErrorResponse(
                     StatusCodes.Status400BadRequest,
-                    ResponseMessages.IdMismatch));
+                    ResponseMessages.InvalidID));
             }
 
             try
             {
-                await _repository.UpdateAsync(location);
+                var existingLocation = await _repository.GetByIdAsync(id);
+                if (existingLocation == null)
+                {
+                    return NotFound(new ErrorResponse(
+                        StatusCodes.Status404NotFound,
+                        ResponseMessages.NotFound));
+                }
+                
+                existingLocation.CompanyId = locationModel.CompanyId;
+                existingLocation.LocationName = locationModel.LocationName;
+                existingLocation.LocationAddress = locationModel.LocationAddress;
+                existingLocation.CityId = locationModel.CityId;
+                existingLocation.StateId = locationModel.StateId;
+                existingLocation.CountryId = locationModel.CountryId;
+                existingLocation.PhoneNo = locationModel.PhoneNo;
+                existingLocation.Fax = locationModel.Fax;
+                existingLocation.EmailId = locationModel.EmailId;
+                existingLocation.Description = locationModel.Description;
+                existingLocation.LocationActive = locationModel.LocationActive;
+
+                await _repository.UpdateAsync(existingLocation);
 
                 var updatedLocation = await _repository.GetByIdAsync(id);
                 return Ok(new SuccessResponse<SettingsLocation>(
@@ -99,17 +120,31 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<SuccessResponse<SettingsLocation>>> PostSettingsLocation(SettingsLocation location)
+        public async Task<ActionResult<SuccessResponse<SettingsLocation>>> PostSettingsLocation(SettingsLocationModel locationModel)
         {
             try
             {
-                // Check if a location with the same name already exists and is active
-                if (await _repository.ExistsAsync(location.LocationName ?? string.Empty))
+                if (await _repository.ExistsAsync(locationModel.LocationName ?? string.Empty))
                 {
                     return Conflict(new ErrorResponse(
                         StatusCodes.Status409Conflict,
                         ResponseMessages.AlreadyExists));
                 }
+
+                var location = new SettingsLocation
+                {
+                    CompanyId = locationModel.CompanyId,
+                    LocationName = locationModel.LocationName,
+                    LocationAddress = locationModel.LocationAddress,
+                    CityId = locationModel.CityId,
+                    StateId = locationModel.StateId,
+                    CountryId = locationModel.CountryId,
+                    PhoneNo = locationModel.PhoneNo,
+                    Fax = locationModel.Fax,
+                    EmailId = locationModel.EmailId,
+                    Description = locationModel.Description,
+                    LocationActive = locationModel.LocationActive
+                };
 
                 await _repository.AddAsync(location);
 

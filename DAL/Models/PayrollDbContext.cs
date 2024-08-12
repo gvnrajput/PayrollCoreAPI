@@ -123,6 +123,8 @@ public partial class PayrollDbContext : DbContext
 
     public virtual DbSet<EssSetting> EssSettings { get; set; }
 
+    public virtual DbSet<ExceptionLog> ExceptionLogs { get; set; }
+
     public virtual DbSet<HrAppointmentLetter> HrAppointmentLetters { get; set; }
 
     public virtual DbSet<HrCandiateAddressDetail> HrCandiateAddressDetails { get; set; }
@@ -1714,6 +1716,14 @@ public partial class PayrollDbContext : DbContext
             entity.Property(e => e.UpateDate).HasColumnType("datetime");
             entity.Property(e => e.UpatedBy).HasMaxLength(50);
             entity.Property(e => e.WorkFlow).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<ExceptionLog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Exceptio__3214EC07BB828D02");
+
+            entity.Property(e => e.DateOccurred).HasColumnType("datetime");
+            entity.Property(e => e.ExceptionType).HasMaxLength(256);
         });
 
         modelBuilder.Entity<HrAppointmentLetter>(entity =>

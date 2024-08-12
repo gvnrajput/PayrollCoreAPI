@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using DAL.Models; // Adjust namespace for your DAL models
+﻿using Microsoft.AspNetCore.Mvc;
+using DAL.Models;
 using WebAPI.Common;
 using BAL.Interfaces;
+using WebAPI.Models;
 
 namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize] // Uncomment if you want to require authorization
+    //[Authorize]
     public class SettingsCompanyGroupsController : ControllerBase
     {
         private readonly ISettingsCompanyGroupRepository _repository;
@@ -44,9 +44,9 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var settingsCompanyGroup = await _repository.GetByIdAsync(id);
+                var companyGroup = await _repository.GetByIdAsync(id);
 
-                if (settingsCompanyGroup == null)
+                if (companyGroup == null)
                 {
                     return NotFound(new ErrorResponse(
                         StatusCodes.Status404NotFound,
@@ -56,7 +56,7 @@ namespace WebAPI.Controllers
                 return Ok(new SuccessResponse<SettingsCompanyGroup>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataRetrievedSuccessfully,
-                    settingsCompanyGroup));
+                    companyGroup));
             }
             catch (Exception ex)
             {
@@ -69,18 +69,29 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> PutSettingsCompanyGroup(int id, SettingsCompanyGroup settingsCompanyGroup)
+        public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> PutSettingsCompanyGroup(int id, SettingsCompanyGroupModel companyGroupModel)
         {
-            if (id != settingsCompanyGroup.CompanyGroupId)
+            if (id <= 0)
             {
                 return BadRequest(new ErrorResponse(
                     StatusCodes.Status400BadRequest,
-                    ResponseMessages.IdMismatch));
+                    ResponseMessages.InvalidID));
             }
 
             try
             {
-                await _repository.UpdateAsync(settingsCompanyGroup);
+                var existingCompanyGroup = await _repository.GetByIdAsync(id);
+                if (existingCompanyGroup == null)
+                {
+                    return NotFound(new ErrorResponse(
+                        StatusCodes.Status404NotFound,
+                        ResponseMessages.NotFound));
+                }
+
+                existingCompanyGroup.CompanyGroupName = companyGroupModel.CompanyGroupName;
+                existingCompanyGroup.CompanyGroupActive = companyGroupModel.CompanyGroupActive;
+
+                await _repository.UpdateAsync(existingCompanyGroup);
 
                 var updatedCompanyGroup = await _repository.GetByIdAsync(id);
                 return Ok(new SuccessResponse<SettingsCompanyGroup>(
@@ -99,25 +110,30 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> PostSettingsCompanyGroup(SettingsCompanyGroup settingsCompanyGroup)
+        public async Task<ActionResult<SuccessResponse<SettingsCompanyGroup>>> PostSettingsCompanyGroup(SettingsCompanyGroupModel companyGroupModel)
         {
             try
             {
-                // Check if a company group with the same name already exists and is active
-                if (await _repository.ExistsAsync(settingsCompanyGroup.CompanyGroupName))
+                if (await _repository.ExistsAsync(companyGroupModel.CompanyGroupName ?? string.Empty))
                 {
                     return Conflict(new ErrorResponse(
                         StatusCodes.Status409Conflict,
                         ResponseMessages.AlreadyExists));
                 }
 
-                await _repository.AddAsync(settingsCompanyGroup);
+                var companyGroup = new SettingsCompanyGroup
+                {
+                    CompanyGroupName = companyGroupModel.CompanyGroupName,
+                    CompanyGroupActive = companyGroupModel.CompanyGroupActive
+                };
 
-                return CreatedAtAction("GetSettingsCompanyGroup", new { id = settingsCompanyGroup.CompanyGroupId },
+                await _repository.AddAsync(companyGroup);
+
+                return CreatedAtAction("GetSettingsCompanyGroup", new { id = companyGroup.CompanyGroupId },
                     new SuccessResponse<SettingsCompanyGroup>(
                         StatusCodes.Status201Created,
                         ResponseMessages.CreatedSuccessfully,
-                        settingsCompanyGroup));
+                        companyGroup));
             }
             catch (Exception ex)
             {
@@ -134,8 +150,8 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var settingsCompanyGroup = await _repository.GetByIdAsync(id);
-                if (settingsCompanyGroup == null)
+                var companyGroup = await _repository.GetByIdAsync(id);
+                if (companyGroup == null)
                 {
                     return NotFound(new ErrorResponse(
                         StatusCodes.Status404NotFound,
@@ -147,7 +163,7 @@ namespace WebAPI.Controllers
                 return Ok(new SuccessResponse<SettingsCompanyGroup>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataDeletedSuccessfully,
-                    settingsCompanyGroup));
+                    companyGroup));
             }
             catch (Exception ex)
             {

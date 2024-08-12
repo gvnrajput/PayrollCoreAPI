@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using DAL.Models;
 using WebAPI.Common;
 using BAL.Interfaces;
+using WebAPI.Models;
 
 namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize] // Uncomment if you want to require authorization
+    //[Authorize]
     public class SettingsCountriesController : ControllerBase
     {
         private readonly ISettingsCountryRepository _repository;
@@ -68,18 +70,29 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<SuccessResponse<SettingsCountry>>> PutSettingsCountry(int id, SettingsCountry country)
+        public async Task<ActionResult<SuccessResponse<SettingsCountry>>> PutSettingsCountry(int id, SettingsCountryModel countryModel)
         {
-            if (id != country.CountryId)
+            if (id <= 0)
             {
                 return BadRequest(new ErrorResponse(
                     StatusCodes.Status400BadRequest,
-                    ResponseMessages.IdMismatch));
+                    ResponseMessages.InvalidID));
             }
 
             try
             {
-                await _repository.UpdateAsync(country);
+                var existingCountry = await _repository.GetByIdAsync(id);
+                if (existingCountry == null)
+                {
+                    return NotFound(new ErrorResponse(
+                        StatusCodes.Status404NotFound,
+                        ResponseMessages.NotFound));
+                }
+               
+                existingCountry.CountryName = countryModel.CountryName;
+                existingCountry.CountryActive = countryModel.CountryActive;
+
+                await _repository.UpdateAsync(existingCountry);
 
                 var updatedCountry = await _repository.GetByIdAsync(id);
                 return Ok(new SuccessResponse<SettingsCountry>(
@@ -98,16 +111,22 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<SuccessResponse<SettingsCountry>>> PostSettingsCountry(SettingsCountry country)
+        public async Task<ActionResult<SuccessResponse<SettingsCountry>>> PostSettingsCountry(SettingsCountryModel countryModel)
         {
             try
-            {               
-                if (await _repository.ExistsAsync(country.CountryName ?? string.Empty))
+            {
+                if (await _repository.ExistsAsync(countryModel.CountryName))
                 {
                     return Conflict(new ErrorResponse(
                         StatusCodes.Status409Conflict,
                         ResponseMessages.AlreadyExists));
                 }
+
+                var country = new SettingsCountry
+                {
+                    CountryName = countryModel.CountryName,
+                    CountryActive = countryModel.CountryActive
+                };
 
                 await _repository.AddAsync(country);
 

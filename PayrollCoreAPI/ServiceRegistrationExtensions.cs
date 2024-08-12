@@ -10,6 +10,7 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<ISettingsCompanyRepository, SettingsCompanyRepository>();
         services.AddScoped<ISettingsLocationRepository, SettingsLocationRepository>();
         services.AddScoped<ISettingsCountryRepository, SettingsCountryRepository>();
+        services.AddScoped<IExceptionLogger, ExceptionLogger>();
         // Register other repositories and services as needed
         // Example:
         // services.AddTransient<IExampleService, ExampleService>();
