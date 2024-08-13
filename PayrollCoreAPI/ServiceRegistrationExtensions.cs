@@ -1,5 +1,6 @@
 ﻿using BAL.Interfaces;
 using BAL.Repositories;
+using DAL.Repositories;
 
 public static class ServiceRegistrationExtensions
 {
@@ -11,6 +12,7 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<ISettingsLocationRepository, SettingsLocationRepository>();
         services.AddScoped<ISettingsCountryRepository, SettingsCountryRepository>();
         services.AddScoped<IExceptionLogger, ExceptionLogger>();
+        services.AddScoped<ISettingsUserRepository, SettingsUserRepository>();
         // Register other repositories and services as needed
         // Example:
         // services.AddTransient<IExampleService, ExampleService>();

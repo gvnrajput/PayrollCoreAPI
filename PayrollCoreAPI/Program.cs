@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using DAL.Models;
+using WebAPI.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,7 +46,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // JWT Authentication
-var key = Encoding.ASCII.GetBytes("A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6A7B8C9D0E1F2G3H4I5J6K7L8M9N0O1P2Q3R4S5T6");
+var key = Encoding.ASCII.GetBytes(AppConstants.JwtSecretKey);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -63,6 +64,19 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuer = false,
         ValidateAudience = false
     };
+    //options.Events = new JwtBearerEvents
+    //{
+    //    OnAuthenticationFailed = context =>
+    //    {
+    //        //_logger.LogError("Authentication failed: {Error}", context.Exception.Message);
+    //        return Task.CompletedTask;
+    //    },
+    //    OnTokenValidated = context =>
+    //    {
+    //        //_logger.LogInformation("Token validated for user: {Name}", context.Principal.Identity.Name);
+    //        return Task.CompletedTask;
+    //    }
+    //};
 });
 
 var app = builder.Build();

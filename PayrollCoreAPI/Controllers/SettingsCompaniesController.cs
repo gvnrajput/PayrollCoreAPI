@@ -3,11 +3,13 @@ using BAL.Interfaces;
 using DAL.Models;
 using WebAPI.Common;
 using WebAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class SettingsCompaniesController : ControllerBase
     {
         private readonly ISettingsCompanyRepository _repository;

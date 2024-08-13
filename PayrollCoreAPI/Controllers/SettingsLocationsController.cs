@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using DAL.Models; // Adjust namespace for your DAL models
+using DAL.Models; 
 using WebAPI.Common;
 using BAL.Interfaces;
 using WebAPI.Models;
@@ -9,7 +9,7 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize] // Uncomment if you want to require authorization
+    [Authorize]
     public class SettingsLocationsController : ControllerBase
     {
         private readonly ISettingsLocationRepository _repository;

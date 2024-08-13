@@ -10,25 +10,25 @@ namespace WebAPI.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class SettingsCountriesController : ControllerBase
+    public class SettingsUsersController : ControllerBase
     {
-        private readonly ISettingsCountryRepository _repository;
-
-        public SettingsCountriesController(ISettingsCountryRepository repository)
+        private readonly ISettingsUserRepository _repository;
+        EncryptDecryptPassword encryptDecryptPassword = new EncryptDecryptPassword();
+        public SettingsUsersController(ISettingsUserRepository repository)
         {
             _repository = repository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<SuccessResponse<IEnumerable<SettingsCountry>>>> GetSettingsCountries()
+        public async Task<ActionResult<SuccessResponse<IEnumerable<SettingsUser>>>> GetSettingsUsers()
         {
             try
             {
-                var countries = await _repository.GetAllAsync();
-                return Ok(new SuccessResponse<IEnumerable<SettingsCountry>>(
+                var users = await _repository.GetAllUsersAsync();
+                return Ok(new SuccessResponse<IEnumerable<SettingsUser>>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataRetrievedSuccessfully,
-                    countries));
+                    users));
             }
             catch (Exception ex)
             {
@@ -41,23 +41,23 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<SuccessResponse<SettingsCountry>>> GetSettingsCountry(int id)
+        public async Task<ActionResult<SuccessResponse<SettingsUser>>> GetSettingsUser(int id)
         {
             try
             {
-                var country = await _repository.GetByIdAsync(id);
+                var user = await _repository.GetUserByIdAsync(id);
 
-                if (country == null)
+                if (user == null)
                 {
                     return NotFound(new ErrorResponse(
                         StatusCodes.Status404NotFound,
                         ResponseMessages.NotFound));
                 }
 
-                return Ok(new SuccessResponse<SettingsCountry>(
+                return Ok(new SuccessResponse<SettingsUser>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataRetrievedSuccessfully,
-                    country));
+                    user));
             }
             catch (Exception ex)
             {
@@ -70,7 +70,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<SuccessResponse<SettingsCountry>>> PutSettingsCountry(int id, SettingsCountryModel countryModel)
+        public async Task<ActionResult<SuccessResponse<SettingsUser>>> PutSettingsUser(int id, SettingsUserModel userModel)
         {
             if (id <= 0)
             {
@@ -81,24 +81,30 @@ namespace WebAPI.Controllers
 
             try
             {
-                var existingCountry = await _repository.GetByIdAsync(id);
-                if (existingCountry == null)
+                var existingUser = await _repository.GetUserByIdAsync(id);
+                if (existingUser == null)
                 {
                     return NotFound(new ErrorResponse(
                         StatusCodes.Status404NotFound,
                         ResponseMessages.NotFound));
                 }
-               
-                existingCountry.CountryName = countryModel.CountryName;
-                existingCountry.CountryActive = countryModel.CountryActive;
 
-                await _repository.UpdateAsync(existingCountry);
+                existingUser.UserGroupId = userModel.UserGroupId;
+                existingUser.CompanyId = userModel.CompanyId;
+                existingUser.LocationId = userModel.LocationId;
+                existingUser.EmployeeId = userModel.EmployeeId;
+                existingUser.UserName = userModel.UserName;
+                existingUser.Password = encryptDecryptPassword.encrypt(userModel.Password);
+                existingUser.ExpiryDate = userModel.ExpiryDate;
+                existingUser.UserActive = userModel.UserActive;
 
-                var updatedCountry = await _repository.GetByIdAsync(id);
-                return Ok(new SuccessResponse<SettingsCountry>(
+                await _repository.UpdateUserAsync(existingUser);
+
+                var updatedUser = await _repository.GetUserByIdAsync(id);
+                return Ok(new SuccessResponse<SettingsUser>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataUpdatedSuccessfully,
-                    updatedCountry));
+                    updatedUser));
             }
             catch (Exception ex)
             {
@@ -111,30 +117,36 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<SuccessResponse<SettingsCountry>>> PostSettingsCountry(SettingsCountryModel countryModel)
+        public async Task<ActionResult<SuccessResponse<SettingsUser>>> PostSettingsUser(SettingsUserModel userModel)
         {
             try
             {
-                if (await _repository.ExistsAsync(countryModel.CountryName))
+                if (await _repository.UserExistsAsync(userModel.UserName))
                 {
                     return Conflict(new ErrorResponse(
                         StatusCodes.Status409Conflict,
                         ResponseMessages.AlreadyExists));
                 }
 
-                var country = new SettingsCountry
+                var user = new SettingsUser
                 {
-                    CountryName = countryModel.CountryName,
-                    CountryActive = countryModel.CountryActive
+                    UserGroupId = userModel.UserGroupId,
+                    CompanyId = userModel.CompanyId,
+                    LocationId = userModel.LocationId,
+                    EmployeeId = userModel.EmployeeId,
+                    UserName = userModel.UserName,
+                    Password = encryptDecryptPassword.encrypt(userModel.Password),
+                    ExpiryDate = userModel.ExpiryDate,
+                    UserActive = userModel.UserActive
                 };
 
-                await _repository.AddAsync(country);
+                await _repository.AddUserAsync(user);
 
-                return CreatedAtAction("GetSettingsCountry", new { id = country.CountryId },
-                    new SuccessResponse<SettingsCountry>(
+                return CreatedAtAction("GetSettingsUser", new { id = user.UserId },
+                    new SuccessResponse<SettingsUser>(
                         StatusCodes.Status201Created,
                         ResponseMessages.CreatedSuccessfully,
-                        country));
+                        user));
             }
             catch (Exception ex)
             {
@@ -147,24 +159,24 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<SuccessResponse<SettingsCountry>>> DeleteSettingsCountry(int id)
+        public async Task<ActionResult<SuccessResponse<SettingsUser>>> DeleteSettingsUser(int id)
         {
             try
             {
-                var country = await _repository.GetByIdAsync(id);
-                if (country == null)
+                var user = await _repository.GetUserByIdAsync(id);
+                if (user == null)
                 {
                     return NotFound(new ErrorResponse(
                         StatusCodes.Status404NotFound,
                         ResponseMessages.NotFound));
                 }
 
-                await _repository.DeleteAsync(id);
+                await _repository.DeleteUserAsync(id);
 
-                return Ok(new SuccessResponse<SettingsCountry>(
+                return Ok(new SuccessResponse<SettingsUser>(
                     StatusCodes.Status200OK,
                     ResponseMessages.DataDeletedSuccessfully,
-                    country));
+                    user));
             }
             catch (Exception ex)
             {

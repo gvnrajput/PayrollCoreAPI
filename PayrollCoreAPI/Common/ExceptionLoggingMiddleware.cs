@@ -4,7 +4,7 @@ using BAL.Interfaces;
 public class ExceptionLoggingMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly IExceptionLogger _exceptionLogger; // Assume you have an interface for logging
+    private readonly IExceptionLogger _exceptionLogger;
 
     public ExceptionLoggingMiddleware(RequestDelegate next, IExceptionLogger exceptionLogger)
     {
