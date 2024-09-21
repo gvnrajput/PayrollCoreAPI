@@ -63,20 +63,7 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ValidateIssuer = false,
         ValidateAudience = false
-    };
-    //options.Events = new JwtBearerEvents
-    //{
-    //    OnAuthenticationFailed = context =>
-    //    {
-    //        //_logger.LogError("Authentication failed: {Error}", context.Exception.Message);
-    //        return Task.CompletedTask;
-    //    },
-    //    OnTokenValidated = context =>
-    //    {
-    //        //_logger.LogInformation("Token validated for user: {Name}", context.Principal.Identity.Name);
-    //        return Task.CompletedTask;
-    //    }
-    //};
+    };    
 });
 
 var app = builder.Build();

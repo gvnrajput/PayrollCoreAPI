@@ -20,22 +20,23 @@ namespace WebAPI.Models
 
         public int? CountryId { get; set; }
 
-        [Phone(ErrorMessage = "Invalid phone number")]
+       // [Phone(ErrorMessage = "Invalid phone number")]
         public string? PhoneNo { get; set; }
 
-        [Phone(ErrorMessage = "Invalid fax number")]
+       // [Phone(ErrorMessage = "Invalid fax number")]
         public string? Fax { get; set; }
 
-        [EmailAddress(ErrorMessage = "Invalid email address")]
+       // [EmailAddress(ErrorMessage = "Invalid email address")]
         public string? EmailId { get; set; }
 
-        [Url(ErrorMessage = "Invalid website URL")]
+       // [Url(ErrorMessage = "Invalid website URL")]
         public string? Website { get; set; }
 
-        [Url(ErrorMessage = "Invalid image URL")]
+        //[Url(ErrorMessage = "Invalid image URL")]
         public string? CompanyImgUrl { get; set; }
 
-        public byte[]? CompanyLogo { get; set; }
+        // Change this to IFormFile
+        public IFormFile? CompanyLogo { get; set; }
 
         [StringLength(500, ErrorMessage = "Description can't be longer than 500 characters")]
         public string? Description { get; set; }

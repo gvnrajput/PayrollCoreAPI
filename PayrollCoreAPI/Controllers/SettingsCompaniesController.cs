@@ -4,6 +4,10 @@ using DAL.Models;
 using WebAPI.Common;
 using WebAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.IO;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 
 namespace WebAPI.Controllers
 {
@@ -69,7 +73,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<SuccessResponse<SettingsCompany>>> PostSettingsCompany(SettingsCompanyModel companyModel)
+        public async Task<ActionResult<SuccessResponse<SettingsCompany>>> PostSettingsCompany([FromForm] SettingsCompanyModel companyModel)
         {
             try
             {
@@ -93,7 +97,6 @@ namespace WebAPI.Controllers
                     EmailId = companyModel.EmailId,
                     Website = companyModel.Website,
                     CompanyImgUrl = companyModel.CompanyImgUrl,
-                    CompanyLogo = companyModel.CompanyLogo,
                     Description = companyModel.Description,
                     CompanyActive = companyModel.CompanyActive,
                     RegNo = companyModel.RegNo,
@@ -110,6 +113,16 @@ namespace WebAPI.Controllers
                     CompanyLicNo = companyModel.CompanyLicNo,
                     PrimaryOwner = companyModel.PrimaryOwner
                 };
+
+                // Handle file upload
+                if (companyModel.CompanyLogo != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await companyModel.CompanyLogo.CopyToAsync(memoryStream);
+                        company.CompanyLogo = memoryStream.ToArray();
+                    }
+                }
 
                 await _repository.AddAsync(company);
                 return CreatedAtAction(nameof(GetSettingsCompany), new { id = company.CompanyId },
@@ -129,7 +142,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<SuccessResponse<SettingsCompany>>> PutSettingsCompany(int id, SettingsCompanyModel companyModel)
+        public async Task<ActionResult<SuccessResponse<SettingsCompany>>> PutSettingsCompany(int id, [FromForm] SettingsCompanyModel companyModel)
         {
             if (id <= 0)
             {
@@ -159,7 +172,6 @@ namespace WebAPI.Controllers
                 existingCompany.EmailId = companyModel.EmailId;
                 existingCompany.Website = companyModel.Website;
                 existingCompany.CompanyImgUrl = companyModel.CompanyImgUrl;
-                existingCompany.CompanyLogo = companyModel.CompanyLogo;
                 existingCompany.Description = companyModel.Description;
                 existingCompany.CompanyActive = companyModel.CompanyActive;
                 existingCompany.RegNo = companyModel.RegNo;
@@ -175,6 +187,16 @@ namespace WebAPI.Controllers
                 existingCompany.ExciseDiv = companyModel.ExciseDiv;
                 existingCompany.CompanyLicNo = companyModel.CompanyLicNo;
                 existingCompany.PrimaryOwner = companyModel.PrimaryOwner;
+
+                // Handle file upload
+                if (companyModel.CompanyLogo != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await companyModel.CompanyLogo.CopyToAsync(memoryStream);
+                        existingCompany.CompanyLogo = memoryStream.ToArray();
+                    }
+                }
 
                 await _repository.UpdateAsync(existingCompany);
                 return Ok(new SuccessResponse<SettingsCompany>(
