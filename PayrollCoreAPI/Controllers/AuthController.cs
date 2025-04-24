@@ -33,6 +33,7 @@ namespace WebAPI.Controllers
 
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(AppConstants.JwtSecretKey);
+                //testinggggg
 
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
