@@ -27,12 +27,14 @@ namespace WebAPI.Controllers
             _logger.LogInformation("Login attempt for user: {Username}", userLogin.Username);
 
             userLogin.Password = encryptDecryptPassword.encrypt(userLogin.Password);
+
             if (_settingsUserRepository.ValidateUser(userLogin.Username,userLogin.Password))
             {
-                _logger.LogInformation("User {Username} authenticated successfully", userLogin.Username);
+                _logger.LogInformation("User {Username} authenticated successfully!", userLogin.Username);
 
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(AppConstants.JwtSecretKey);
+                //testinggggg
 
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
