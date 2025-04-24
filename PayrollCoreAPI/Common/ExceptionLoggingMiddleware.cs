@@ -9,7 +9,7 @@ public class ExceptionLoggingMiddleware
     public ExceptionLoggingMiddleware(RequestDelegate next, IExceptionLogger exceptionLogger)
     {
         _next = next;
-        _exceptionLogger = exceptionLogger;
+        _exceptionLogger = exceptionLogger;   
     }
 
     public async Task InvokeAsync(HttpContext context)
